@@ -9,7 +9,6 @@ import java.security.Principal;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-@Component
 public class TenantIdentifierResolver implements CurrentTenantIdentifierResolver {
 
     @Override

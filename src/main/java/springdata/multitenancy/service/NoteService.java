@@ -1,27 +1,25 @@
 package springdata.multitenancy.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import springdata.multitenancy.dao.NoteDAO;
 import springdata.multitenancy.entity.Note;
-import springdata.multitenancy.repository.NoteRepository;
 
 @Service
 public class NoteService {
 
-    private NoteRepository noteRepository;
-
-    public NoteService(NoteRepository noteRepository) {
-        this.noteRepository = noteRepository;
-    }
+    @Autowired
+    private NoteDAO noteDao;
 
     public Note createNote(Note note) {
-        return noteRepository.save(note);
+        return noteDao.save(note);
     }
 
     public Note findNote(Long id) {
-        return noteRepository.findById(id).orElseThrow();
+        return noteDao.findById(id).orElseThrow();
     }
 
     public Iterable<Note> findAllNotes() {
-        return noteRepository.findAll();
+        return noteDao.findAll();
     }
 }

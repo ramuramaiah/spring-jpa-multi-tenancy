@@ -14,11 +14,8 @@ import springdata.multitenancy.service.UserService;
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
+    @Autowired
     private UserService userService;
-
-    public SecurityConfig(UserService userService) {
-        this.userService = userService;
-    }
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {

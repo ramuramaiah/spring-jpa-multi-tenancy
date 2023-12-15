@@ -1,22 +1,23 @@
 package springdata.multitenancy.config;
 
 import org.flywaydb.core.Flyway;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springdata.multitenancy.TenantContext;
-import springdata.multitenancy.repository.UserRepository;
-
-import javax.sql.DataSource;
+import springdata.multitenancy.dao.UserDAO;
 
 @Configuration
 public class FlywayConfig {
 
+    @Autowired
+    UserDAO userDao;
     @Bean
-    public Flyway flyway(DataSource dataSource) {
+    public Flyway flyway() {
         Flyway flyway = Flyway.configure()
                 .locations("db/migration/default_tenant")
-                .dataSource(dataSource)
+                .dataSource(DataSourceConfig.dataSource())
                 .schemas(TenantContext.DEFAULT_TENANT_ID)
                 .load();
         flyway.migrate();
@@ -24,13 +25,13 @@ public class FlywayConfig {
     }
 
     @Bean
-    CommandLineRunner commandLineRunner(UserRepository userRepository, DataSource dataSource) {
+    CommandLineRunner commandLineRunner() {
         return args -> {
-            userRepository.findAll().forEach(user -> {
+            userDao.findAll().forEach(user -> {
                 String tenant = user.getUsername();
                 Flyway flyway = Flyway.configure()
                         .locations("db/migration/tenants")
-                        .dataSource(dataSource)
+                        .dataSource(DataSourceConfig.dataSource())
                         .schemas(tenant)
                         .load();
                 flyway.migrate();

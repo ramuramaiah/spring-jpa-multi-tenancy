@@ -1,45 +1,43 @@
 package springdata.multitenancy.config;
 
-import springdata.multitenancy.MultiTenancyApplication;
-import org.hibernate.MultiTenancyStrategy;
 import org.hibernate.cfg.Environment;
-import org.hibernate.context.spi.CurrentTenantIdentifierResolver;
-import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
-import org.springframework.boot.autoconfigure.orm.jpa.JpaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.orm.jpa.JpaVendorAdapter;
-import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import springdata.multitenancy.MultiTenancyApplication;
+import springdata.multitenancy.TenantConnectionProvider;
+import springdata.multitenancy.TenantIdentifierResolver;
 
-import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Properties;
 
 @Configuration
+@EnableTransactionManagement(proxyTargetClass = true)
 public class HibernateConfig {
 
     @Bean
-    public JpaVendorAdapter jpaVendorAdapter() {
-        return new HibernateJpaVendorAdapter();
+    public LocalSessionFactoryBean sessionFactory() {
+        LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+        sessionFactory.setDataSource(DataSourceConfig.dataSource());
+        sessionFactory.setPackagesToScan(MultiTenancyApplication.class.getPackage().getName());
+        sessionFactory.setHibernateProperties(hibernateProperties());
+
+        return sessionFactory;
     }
 
-    @Bean
-    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource, JpaProperties jpaProperties,
-            MultiTenantConnectionProvider multiTenantConnectionProvider, CurrentTenantIdentifierResolver tenantIdentifierResolver) {
+    private final Properties hibernateProperties() {
+        Properties hibernateProperties = new Properties();
+        hibernateProperties.setProperty(
+                Environment.SHOW_SQL, "true");
+        hibernateProperties.setProperty(
+                Environment.DIALECT, "org.hibernate.dialect.MySQLDialect");
+        hibernateProperties.setProperty(
+                Environment.MULTI_TENANT, "DATABASE");
+        hibernateProperties.setProperty(
+                Environment.MULTI_TENANT_CONNECTION_PROVIDER, TenantConnectionProvider.class.getName());
+        hibernateProperties.setProperty(
+                Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, TenantIdentifierResolver.class.getName());
 
-        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
-        em.setDataSource(dataSource);
-        em.setPackagesToScan(MultiTenancyApplication.class.getPackage().getName());
-        em.setJpaVendorAdapter(jpaVendorAdapter());
-
-        Map<String, Object> jpaPropertiesMap = new HashMap<>(jpaProperties.getProperties());
-        jpaPropertiesMap.put(Environment.SHOW_SQL, true);
-        jpaPropertiesMap.put(Environment.MULTI_TENANT, MultiTenancyStrategy.DATABASE);
-        jpaPropertiesMap.put(Environment.MULTI_TENANT_CONNECTION_PROVIDER, multiTenantConnectionProvider);
-        jpaPropertiesMap.put(Environment.MULTI_TENANT_IDENTIFIER_RESOLVER, tenantIdentifierResolver);
-        em.setJpaPropertyMap(jpaPropertiesMap);
-
-        return em;
+        return hibernateProperties;
     }
 }

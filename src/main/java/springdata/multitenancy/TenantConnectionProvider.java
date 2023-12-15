@@ -2,23 +2,17 @@ package springdata.multitenancy;
 
 import org.hibernate.engine.jdbc.connections.spi.MultiTenantConnectionProvider;
 import org.springframework.stereotype.Component;
+import springdata.multitenancy.config.DataSourceConfig;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 @Component
 public class TenantConnectionProvider implements MultiTenantConnectionProvider {
 
-    private DataSource datasource;
-
-    public TenantConnectionProvider(DataSource dataSource) {
-        this.datasource = dataSource;
-    }
-
     @Override
     public Connection getAnyConnection() throws SQLException {
-        return datasource.getConnection();
+        return DataSourceConfig.dataSource().getConnection();
     }
 
     @Override
