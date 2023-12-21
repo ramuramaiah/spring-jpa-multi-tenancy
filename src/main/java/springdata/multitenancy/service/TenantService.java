@@ -12,9 +12,12 @@ public class TenantService {
     @Autowired
     private DataSource dataSource;
 
+    @Autowired
+    private String tenantSchemaLocation;
+
     public void initDatabase(String schema) {
         Flyway flyway = Flyway.configure()
-                .locations("db/migration/tenants")
+                .locations(tenantSchemaLocation)
                 .dataSource(dataSource)
                 .schemas(schema)
                 .load();

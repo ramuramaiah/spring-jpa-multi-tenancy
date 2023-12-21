@@ -5,15 +5,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import springdata.multitenancy.TenantContext;
 import springdata.multitenancy.dao.UserDAO;
 
 @Configuration
+@Profile("!test")
 public class FlywayConfig {
 
     @Autowired
     UserDAO userDao;
     @Bean
+    @Profile("!test")
     public Flyway flyway() {
         Flyway flyway = Flyway.configure()
                 .locations("db/migration/default_tenant")
@@ -22,6 +25,12 @@ public class FlywayConfig {
                 .load();
         flyway.migrate();
         return flyway;
+    }
+
+    @Bean
+    @Profile("!test")
+    public String tenantSchemaLocation() {
+        return "db/migration/tenants";
     }
 
     @Bean

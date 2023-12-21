@@ -5,15 +5,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
 
 @Entity
+@Table(name = "userInfo")
 public class User implements UserDetails {
 
     @Id
@@ -23,7 +20,6 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String username;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
     public Long getId() {
