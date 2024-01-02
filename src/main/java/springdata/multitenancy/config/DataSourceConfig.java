@@ -1,6 +1,8 @@
 package springdata.multitenancy.config;
 
 import org.springframework.boot.jdbc.DataSourceBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
@@ -10,6 +12,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class DataSourceConfig {
+    @Bean
+    @Profile("!test")
     public static DataSource dataSource() {
         DataSourceBuilder dataSourceBuilder = DataSourceBuilder.create();
         Resource resource = new ClassPathResource("/application.properties");
